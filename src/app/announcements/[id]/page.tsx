@@ -47,14 +47,22 @@ export default async function AnnouncementDetailPage({
           ← 목록으로
         </Link>
         {isAdmin && (
-          <form action={handleDelete}>
-            <button
-              type="submit"
-              className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
+          <div className="flex gap-2">
+            <Link
+              href={`/announcements/${a.id}/edit`}
+              className="px-3 py-1.5 text-sm border border-emerald-300 text-emerald-700 rounded hover:bg-emerald-50"
             >
-              삭제
-            </button>
-          </form>
+              수정
+            </Link>
+            <form action={handleDelete}>
+              <button
+                type="submit"
+                className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
+              >
+                삭제
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </article>

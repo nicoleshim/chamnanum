@@ -9,11 +9,38 @@ import {
   type ExternalLink,
 } from "@/lib/settings";
 import Markdown from "@/components/Markdown";
+import AnnouncementPopup from "@/components/AnnouncementPopup";
+
+async function getPopupAnnouncements() {
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("announcements")
+    .select("id, title, content, is_popup, popup_start_date, popup_end_date")
+    .eq("is_popup", true)
+    .or(
+      `popup_start_date.is.null,popup_start_date.lte.${now}`
+    )
+    .or(
+      `popup_end_date.is.null,popup_end_date.gte.${now}`
+    )
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error("Failed to fetch popup announcements:", error);
+    return null;
+  }
+
+  return data;
+}
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [settings, { data: announcements }] = await Promise.all([
+  const [settings, { data: announcements }, popupAnnouncement] = await Promise.all([
     getSettings([
       "home_hero_title",
       "home_hero_subtitle",
@@ -31,6 +58,7 @@ export default async function HomePage() {
       .select("id, title, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
+    getPopupAnnouncements(),
   ]);
 
   const featuredCards = parseJsonArray<FeaturedCard>(
@@ -52,6 +80,11 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12">
+      {/* Popup */}
+      {popupAnnouncement && (
+        <AnnouncementPopup announcement={popupAnnouncement} />
+      )}
+
       {/* 1. Hero */}
       <section
         style={heroBg}
