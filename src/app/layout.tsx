@@ -12,6 +12,11 @@ const notoSansKR = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: "참나눔회",
   description: "함께 나누는 따뜻한 마음, 참나눔회",
+  verification: {
+    other: {
+      "naver-site-verification": "f7093e8c79b4b87ede129033600f268ccc464cc4",
+    },
+  },
 };
 
 export default function RootLayout({
