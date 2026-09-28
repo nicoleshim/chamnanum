@@ -9,6 +9,7 @@ type Props = {
   rows?: number;
   required?: boolean;
   placeholder?: string;
+  onUploadingChange?: (uploading: boolean) => void;
 };
 
 const safeExt = (name: string) => {
@@ -25,6 +26,7 @@ export default function RichEditor({
   rows = 12,
   required,
   placeholder,
+  onUploadingChange,
 }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +77,7 @@ export default function RichEditor({
   async function handleFiles(files: FileList | File[]) {
     setError(null);
     setUploading(true);
+    onUploadingChange?.(true);
     try {
       for (const file of Array.from(files)) {
         const url = await uploadFile(file);
@@ -87,6 +90,7 @@ export default function RichEditor({
       }
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 

@@ -33,16 +33,24 @@ export default function AnnouncementForm({
       ? new Date(initialData.popup_end_date).toISOString().slice(0, 16)
       : ""
   );
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (uploading || submitting) return;
     const formData = new FormData(e.currentTarget);
     formData.set("is_popup", isPopup ? "true" : "false");
     if (isPopup) {
       formData.set("popup_start_date", popupStartDate);
       formData.set("popup_end_date", popupEndDate);
     }
-    await action(formData);
+    setSubmitting(true);
+    try {
+      await action(formData);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -60,10 +68,11 @@ export default function AnnouncementForm({
 
       <div>
         <label className="block text-sm font-medium mb-2">내용</label>
-        <RichEditor 
-          name="content" 
-          defaultValue={initialData?.content ?? ""} 
-          required 
+        <RichEditor
+          name="content"
+          defaultValue={initialData?.content ?? ""}
+          required
+          onUploadingChange={setUploading}
         />
       </div>
 
@@ -115,9 +124,16 @@ export default function AnnouncementForm({
 
       <button
         type="submit"
-        className="w-full px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition"
+        disabled={uploading || submitting}
+        className="w-full px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {mode === "create" ? "작성" : "수정"}
+        {uploading
+          ? "파일 업로드 중..."
+          : submitting
+          ? "저장 중..."
+          : mode === "create"
+          ? "작성"
+          : "수정"}
       </button>
     </form>
   );
